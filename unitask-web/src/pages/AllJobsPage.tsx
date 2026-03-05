@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { jobsData, type Job } from '../data/siteData';
+import { useFadeUpObserver } from '../hooks/useScroll';
 
 const TABS = [
   { label: 'Tất cả', cat: 'all' },
@@ -45,6 +46,9 @@ function JobCardFull({ job }: { job: Job }) {
 export default function AllJobsPage() {
   const [activeTab, setActiveTab] = useState('all');
   const [search, setSearch] = useState('');
+
+  // Re-trigger fade-up observer when filter/search changes
+  useFadeUpObserver([activeTab, search]);
 
   const filtered = jobsData.filter((j) => {
     const matchCat = activeTab === 'all' || j.category === activeTab;
