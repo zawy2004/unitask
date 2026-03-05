@@ -19,7 +19,7 @@ export default function Testimonials() {
               </div>
               <p className="testi-text">"{t.text}"</p>
               <div className="testi-author">
-                <div className="testi-avatar">{t.avatar}</div>
+                <div className="testi-avatar" style={{background: t.avatarGradient}}>{t.avatarLetter}</div>
                 <div>
                   <div className="testi-name">{t.name}</div>
                   <div className="testi-role">{t.role}</div>
