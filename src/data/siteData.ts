@@ -378,6 +378,7 @@ export interface Testimonial {
   text: string;
   avatarLetter: string;
   avatarGradient: string;
+  avatar?: string; // Thêm thuộc tính avatar (có thể undefined nếu không dùng)
   name: string;
   role: string;
 }
