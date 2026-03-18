@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { jobsData,  type Job } from '../data/siteData';
+import { jobsData } from '../data/mockData';
+import type { Job } from '../types';
 
 const TABS = [
   { label: 'Tất cả', cat: 'all' },
@@ -33,9 +34,9 @@ function JobCard({ job }: { job: Job }) {
           <div className="spots-fill" style={{ width: `${100 - spotsPct}%` }} />
         </div>
       </div>
-      <div className="jc-pay">{job.pay}</div>
+      <div className="jc-pay">💰 {job.pay}</div>
       <div className="jc-footer">
-        <div className="jc-deadline">{job.deadline}</div>
+        <div className="jc-deadline">⏰ {job.deadline}</div>
         <Link to={`/jobs/${job.id}`} className="jc-btn">Xem chi tiết →</Link>
       </div>
     </div>

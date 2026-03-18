@@ -1,4 +1,4 @@
-import { featuresData } from '../data/siteData';
+import { featuresData } from '../data/mockData';
 
 export default function Features() {
   return (

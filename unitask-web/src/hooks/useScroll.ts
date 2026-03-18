@@ -31,37 +31,28 @@ export function useActiveSection(ids: string[], offset = 120): string {
   return active;
 }
 
-/** IntersectionObserver hook – adds `visible` class to elements with `fade-up`.
- *  Re-runs whenever `deps` change (e.g. route pathname) so newly-mounted
- *  elements are picked up without a full page reload.
- */
-export function useFadeUpObserver(deps: unknown[] = []): void {
+/** IntersectionObserver hook – adds `visible` class to elements with `fade-up` */
+export function useFadeUpObserver(dep?: unknown): void {
   useEffect(() => {
-    // Small delay so the new page's DOM is painted before we query
-    const timer = setTimeout(() => {
-      const observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((e, i) => {
-            if (e.isIntersecting) {
-              setTimeout(() => e.target.classList.add('visible'), i * 80);
-              observer.unobserve(e.target);
-            }
-          });
-        },
-        { threshold: 0.12 }
-      );
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e, i) => {
+          if (e.isIntersecting) {
+            setTimeout(() => e.target.classList.add('visible'), i * 80);
+            observer.unobserve(e.target);
+          }
+        });
+      },
+      { threshold: 0.12 }
+    );
+    const raf = requestAnimationFrame(() => {
       document.querySelectorAll('.fade-up:not(.visible)').forEach((el) => observer.observe(el));
-
-      // store for cleanup
-      (window as any).__fadeObserver = observer;
-    }, 60);
-
+    });
     return () => {
-      clearTimeout(timer);
-      (window as any).__fadeObserver?.disconnect();
+      cancelAnimationFrame(raf);
+      observer.disconnect();
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, deps);
+  }, [dep]);
 }
 
 /** Animated counter: counts from 0 to target */

@@ -1,111 +1,50 @@
-import { useState, useEffect } from 'react';
-import { Routes, Route, useLocation } from 'react-router-dom';
-import { useFadeUpObserver } from './hooks/useScroll';
-
-import Navbar from './components/Navbar';
-import Hero from './components/Hero';
-import TrustStrip from './components/TrustStrip';
-import Partners from './components/Partners';
-import Categories from './components/Categories';
-import SearchSection from './components/SearchSection';
-import JobsSection from './components/JobsSection';
-import HowItWorks from './components/HowItWorks';
-import Features from './components/Features';
-import StatsSection from './components/StatsSection';
-import Testimonials from './components/Testimonials';
-import Pricing from './components/Pricing';
-import BlogSection from './components/BlogSection';
-import FAQ from './components/FAQ';
-import Newsletter from './components/Newsletter';
-import CTABanner from './components/CTABanner';
-import Footer from './components/Footer';
-import ScrollToTop from './components/ScrollToTop';
-
+import { Routes, Route } from 'react-router-dom';
+import Layout from './layouts/Layout';
+import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
-import AllJobsPage from './pages/AllJobsPage';
+import JobsPage from './pages/JobsPage';
 import JobDetailPage from './pages/JobDetailPage';
-import BusinessPage from './pages/BusinessPage';
-import BlogListPage from './pages/BlogListPage';
+import DashboardPage from './pages/DashboardPage';
+import PostJobPage from './pages/PostJobPage';
+import ProfilePage from './pages/ProfilePage';
+import WalletPage from './pages/WalletPage';
+import MyApplicationsPage from './pages/MyApplicationsPage';
+import ManageJobsPage from './pages/ManageJobsPage';
 import AboutPage from './pages/AboutPage';
 import ContactPage from './pages/ContactPage';
-import TermsPage from './pages/TermsPage';
-import PrivacyPage from './pages/PrivacyPage';
-import ProfilePage from './pages/ProfilePage';
-import GuidePage from './pages/GuidePage';
-
-function HomePage() {
-  const [searchValue, setSearchValue] = useState('');
-
-  const handleSearch = () => {
-    console.log('Search:', searchValue);
-  };
-
-  const handleQuickSearch = (tag: string) => {
-    setSearchValue(tag);
-  };
-
-  return (
-    <>
-      <Hero />
-      <TrustStrip />
-      <Partners />
-      <Categories />
-      <SearchSection
-        searchValue={searchValue}
-        setSearchValue={setSearchValue}
-        onSearch={handleSearch}
-        onQuickSearch={handleQuickSearch}
-      />
-      <JobsSection />
-      <HowItWorks />
-      <Features />
-      <StatsSection />
-      <Testimonials />
-      <Pricing />
-      <BlogSection />
-      <FAQ />
-      <Newsletter />
-      <CTABanner />
-    </>
-  );
-}
 
 export default function App() {
-  const location = useLocation();
-  const isAuthPage = location.pathname === '/login' || location.pathname === '/register';
-
-  // scroll to top on route change
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [location.pathname]);
-
-  // activate fade-up animations (re-run when route changes)
-  useFadeUpObserver([location.pathname]);
-
   return (
-    <>
-      <div className="noise" />
-      {!isAuthPage && <Navbar />}
-
-      <Routes>
+    <Routes>
+      <Route element={<Layout />}>
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
-        <Route path="/jobs" element={<AllJobsPage />} />
+        <Route path="/jobs" element={<JobsPage />} />
         <Route path="/jobs/:id" element={<JobDetailPage />} />
-        <Route path="/business" element={<BusinessPage />} />
-        <Route path="/blog" element={<BlogListPage />} />
+        <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/post-job" element={<PostJobPage />} />
+        <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/wallet" element={<WalletPage />} />
+        <Route path="/my-applications" element={<MyApplicationsPage />} />
+        <Route path="/manage-jobs" element={<ManageJobsPage />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/contact" element={<ContactPage />} />
-        <Route path="/terms" element={<TermsPage />} />
-        <Route path="/privacy" element={<PrivacyPage />} />
-        <Route path="/profile" element={<ProfilePage />} />
-        <Route path="/guide" element={<GuidePage />} />
-      </Routes>
+        <Route path="*" element={<NotFound />} />
+      </Route>
+    </Routes>
+  );
+}
 
-      {!isAuthPage && <Footer />}
-      <ScrollToTop />
-    </>
+function NotFound() {
+  return (
+    <section className="page-notfound">
+      <div className="container" style={{ textAlign: 'center', padding: '120px 20px' }}>
+        <h1 style={{ fontSize: '4rem', marginBottom: 12 }}>404</h1>
+        <p style={{ color: 'var(--text-2)', fontSize: '1.1rem' }}>Trang bạn tìm không tồn tại.</p>
+        <a href="/" className="btn btn-primary" style={{ marginTop: 24 }}>← Về trang chủ</a>
+      </div>
+    </section>
   );
 }

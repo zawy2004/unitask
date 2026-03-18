@@ -1,8 +1,8 @@
-import { testimonialsData } from '../data/siteData';
+import { testimonialsData } from '../data/mockData';
 
 export default function Testimonials() {
   return (
-    <section id="testimonials">
+    <section id="testimonials" className="testimonials-bg">
       <div className="container">
         <div className="section-header fade-up">
           <div className="section-eyebrow">Câu chuyện thành công</div>
@@ -17,9 +17,9 @@ export default function Testimonials() {
               <div className="testi-stars">
                 {'★'.repeat(t.stars)}
               </div>
-              <p className="testi-text">"{t.text}"</p>
+              <p className="testi-text">{t.text}</p>
               <div className="testi-author">
-                <div className="testi-avatar">{t.avatar}</div>
+                <div className="testi-avatar" style={{ background: t.avatarGradient }}>{t.avatarLetter}</div>
                 <div>
                   <div className="testi-name">{t.name}</div>
                   <div className="testi-role">{t.role}</div>

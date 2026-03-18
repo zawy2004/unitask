@@ -1,100 +1,160 @@
-import { Link } from 'react-router-dom';
-
-const skills = [
-  { name: 'React', level: 'Nâng cao' },
-  { name: 'Figma', level: 'Trung bình' },
-  { name: 'SEO Content', level: 'Cơ bản' },
-];
-
-const completedJobs = [
-  { title: 'UI/UX Design cho App Mobile', company: 'TechNova VN', date: '02/2026', rating: 5 },
-  { title: 'Landing Page React', company: 'CreativeBox Studio', date: '01/2026', rating: 5 },
-  { title: 'Viết 5 bài blog SEO', company: 'MarketHub VN', date: '12/2025', rating: 4 },
-];
+import { useEffect, useState, type FormEvent } from 'react';
+import { useAuth } from '../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 export default function ProfilePage() {
+  const { user, updateProfile } = useAuth();
+  const navigate = useNavigate();
+
+  const [form, setForm] = useState({
+    name: '',
+    email: '',
+    university: '',
+    major: '',
+    companyName: '',
+    bio: '',
+    phone: '',
+    skills: '',
+  });
+  const [saved, setSaved] = useState(false);
+  const [initialized, setInitialized] = useState(false);
+
+  // Redirect if not logged in
+  useEffect(() => {
+    if (!user) navigate('/login');
+  }, [user, navigate]);
+
+  // Sync form when user loads (only once per user)
+  useEffect(() => {
+    if (user && !initialized) {
+      setForm({
+        name: user.name,
+        email: user.email,
+        university: user.university || '',
+        major: user.major || '',
+        companyName: user.companyName || '',
+        bio: user.bio || '',
+        phone: user.phone || '',
+        skills: (user.skills || []).join(', '),
+      });
+      setInitialized(true);
+    }
+  }, [user, initialized]);
+
+  const set = (key: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+    setForm((p) => ({ ...p, [key]: e.target.value }));
+
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    updateProfile({
+      name: form.name.trim(),
+      university: form.university.trim() || undefined,
+      major: form.major.trim() || undefined,
+      companyName: form.companyName.trim() || undefined,
+      bio: form.bio.trim() || undefined,
+      phone: form.phone.trim() || undefined,
+      skills: form.skills
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean),
+    });
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2500);
+  };
+
+  if (!user) return null;
+
   return (
-    <div className="page-wrapper">
-      <div className="container" style={{ paddingTop: 120, paddingBottom: 80 }}>
-        <div className="profile-layout">
-          {/* Sidebar */}
-          <div className="profile-sidebar fade-up">
-            <div className="profile-avatar-wrap">
-              <div className="profile-avatar" style={{ background: 'linear-gradient(135deg,#5B4FFF,#7C72FF)' }}>
-                NK
+    <section className="page-profile">
+      <div className="container">
+        <div className="prof-layout">
+          {/* profile header */}
+          <div className="prof-header fade-up">
+            <div className="prof-avatar" style={{
+              background: user.role === 'student'
+                ? 'linear-gradient(135deg,#5B4FFF,#7C72FF)'
+                : 'linear-gradient(135deg,#00D4AA,#00A882)',
+            }}>
+              {user.avatar}
+            </div>
+            <div className="prof-info">
+              <h1>{user.name}</h1>
+              <div className="prof-role-badge">
+                {user.role === 'student' ? '👨‍🎓 Sinh viên' : '🏢 Doanh nghiệp'}
               </div>
-              <div className="profile-status">🟢 Đang sẵn sàng</div>
-            </div>
-            <h2 className="profile-name">Nguyễn Minh Khoa</h2>
-            <p className="profile-role">Frontend Developer</p>
-            <p className="profile-school">🎓 CNTT — ĐH Bách khoa TP.HCM · Năm 4</p>
-
-            <div className="profile-stats-row">
-              <div><strong>8</strong><span>Project</span></div>
-              <div><strong>4.9 ★</strong><span>Đánh giá</span></div>
-              <div><strong>100%</strong><span>Hoàn thành</span></div>
-            </div>
-
-            <div className="profile-actions">
-              <button className="btn btn-primary" style={{ width: '100%', justifyContent: 'center' }}>✏️ Chỉnh sửa</button>
-              <button className="btn btn-ghost" style={{ width: '100%', justifyContent: 'center' }}>📥 Xuất CV PDF</button>
+              {user.rating !== undefined && user.rating > 0 && (
+                <div className="prof-rating">⭐ {user.rating}/5.0 · 🏆 {user.completedJobs || 0} job hoàn thành</div>
+              )}
             </div>
           </div>
 
-          {/* Main */}
-          <div className="profile-main">
-            <div className="profile-card fade-up">
-              <h3>📋 Giới thiệu</h3>
-              <p>Sinh viên năm 4 ngành Khoa học Máy tính, đam mê frontend development. Đã hoàn thành 8 project trên UniTask với đánh giá trung bình 4.9/5. Thành thạo React, TypeScript, và Figma.</p>
-            </div>
+          {/* form */}
+          <form className="prof-form fade-up" onSubmit={handleSubmit}>
+            {saved && <div className="prof-saved">✅ Đã lưu thay đổi!</div>}
 
-            <div className="profile-card fade-up">
-              <h3>🛠️ Kỹ năng</h3>
-              <div className="skill-tags">
-                {skills.map((s, i) => (
-                  <div key={i} className="skill-tag">
-                    <span className="skill-name">{s.name}</span>
-                    <span className="skill-level">{s.level}</span>
+            <h2>Thông tin cá nhân</h2>
+
+            <div className="prof-grid">
+              <div className="prof-field">
+                <label>Họ tên</label>
+                <input type="text" value={form.name} onChange={set('name')} />
+              </div>
+              <div className="prof-field">
+                <label>Email</label>
+                <input type="email" value={form.email} disabled />
+              </div>
+              <div className="prof-field">
+                <label>Số điện thoại</label>
+                <input type="tel" value={form.phone} onChange={set('phone')} placeholder="0912 345 678" />
+              </div>
+
+              {user.role === 'student' ? (
+                <>
+                  <div className="prof-field">
+                    <label>Trường đại học</label>
+                    <input type="text" value={form.university} onChange={set('university')} />
                   </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="profile-card fade-up">
-              <h3>💼 Project đã hoàn thành</h3>
-              <div className="project-list">
-                {completedJobs.map((j, i) => (
-                  <div key={i} className="project-item">
-                    <div>
-                      <strong>{j.title}</strong>
-                      <p>{j.company} · {j.date}</p>
-                    </div>
-                    <div className="project-rating">{'★'.repeat(j.rating)}</div>
+                  <div className="prof-field">
+                    <label>Ngành học</label>
+                    <input type="text" value={form.major} onChange={set('major')} />
                   </div>
-                ))}
-              </div>
+                </>
+              ) : (
+                <div className="prof-field">
+                  <label>Tên công ty</label>
+                  <input type="text" value={form.companyName} onChange={set('companyName')} />
+                </div>
+              )}
             </div>
 
-            <div className="profile-card fade-up">
-              <h3>⭐ Skill Endorsement</h3>
-              <div className="endorsement-list">
-                <div className="endorsement-item">
-                  <span className="endorsement-skill">React</span>
-                  <span className="endorsement-by">Xác nhận bởi TechNova VN, DevStack JSC</span>
-                </div>
-                <div className="endorsement-item">
-                  <span className="endorsement-skill">UI/UX</span>
-                  <span className="endorsement-by">Xác nhận bởi CreativeBox Studio</span>
-                </div>
-              </div>
+            <h2 style={{ marginTop: 32 }}>Giới thiệu bản thân</h2>
+            <div className="prof-field">
+              <textarea value={form.bio} onChange={set('bio')} rows={4} placeholder="Viết vài dòng giới thiệu về bạn, kinh nghiệm, mục tiêu nghề nghiệp..." />
             </div>
-          </div>
-        </div>
 
-        <div style={{ textAlign: 'center', marginTop: 48 }} className="fade-up">
-          <Link to="/" className="btn btn-ghost">← Về trang chủ</Link>
+            {user.role === 'student' && (
+              <>
+                <h2 style={{ marginTop: 32 }}>Kỹ năng</h2>
+                <div className="prof-field">
+                  <input type="text" value={form.skills} onChange={set('skills')} placeholder="React, Figma, Photoshop, Content Writing..." />
+                  <small style={{ color: 'var(--text-2)', marginTop: 4, display: 'block' }}>Phân tách bằng dấu phẩy</small>
+                </div>
+                {form.skills && (
+                  <div className="prof-skills-preview">
+                    {form.skills.split(',').map((s) => s.trim()).filter(Boolean).map((s) => (
+                      <span key={s} className="prof-skill-tag">{s}</span>
+                    ))}
+                  </div>
+                )}
+              </>
+            )}
+
+            <div className="prof-actions">
+              <button type="submit" className="btn btn-primary">💾 Lưu thay đổi</button>
+            </div>
+          </form>
         </div>
       </div>
-    </div>
+    </section>
   );
 }

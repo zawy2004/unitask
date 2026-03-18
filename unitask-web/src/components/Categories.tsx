@@ -1,4 +1,5 @@
-import { categoriesData } from '../data/siteData';
+import { Link } from 'react-router-dom';
+import { categoriesData } from '../data/mockData';
 
 export default function Categories() {
   return (
@@ -13,14 +14,14 @@ export default function Categories() {
         </div>
         <div className="cat-grid">
           {categoriesData.map((cat, i) => (
-            <div className="cat-card fade-up" key={i}>
+            <Link to={`/jobs?cat=${cat.slug}`} className="cat-card fade-up" key={i}>
               <div className="cat-icon" style={{ background: cat.bg }}>{cat.icon}</div>
               <div>
                 <div className="cat-name">{cat.name}</div>
                 <div className="cat-count">{cat.count}</div>
               </div>
               <span className="cat-arrow">→</span>
-            </div>
+            </Link>
           ))}
         </div>
       </div>

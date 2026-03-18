@@ -11,11 +11,11 @@ export default function CTABanner() {
             ngày trên UniTask
           </p>
           <div className="cta-btns">
-            <Link to="/register" className="btn btn-primary btn-lg">
-              Đăng ký Sinh viên — Miễn phí
+            <Link to="/register" className="btn btn-white">
+              🎓 Đăng ký Sinh viên — Miễn phí
             </Link>
-            <Link to="/business" className="btn btn-outline btn-lg">
-              Đăng việc cho Doanh nghiệp
+            <Link to="/post-job" className="btn btn-outline-white">
+              🏢 Đăng việc cho Doanh nghiệp
             </Link>
           </div>
         </div>

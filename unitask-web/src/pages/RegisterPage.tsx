@@ -1,28 +1,69 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth, type UserRole } from '../contexts/AuthContext';
 
 export default function RegisterPage() {
-  const [role, setRole] = useState<'student' | 'business'>('student');
+  const { register } = useAuth();
+  const navigate = useNavigate();
+  const [role, setRole] = useState<UserRole>('student');
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [university, setUniversity] = useState('');
+  const [major, setMajor] = useState('');
+  const [companyName, setCompanyName] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    if (!name || !email || !password) {
+      setError('Vui lòng điền đầy đủ thông tin bắt buộc.');
+      return;
+    }
+    if (password.length < 6) {
+      setError('Mật khẩu phải có ít nhất 6 ký tự.');
+      return;
+    }
+    setLoading(true);
+    const ok = await register({
+      name,
+      email,
+      password,
+      role,
+      university: role === 'student' ? university : undefined,
+      major: role === 'student' ? major : undefined,
+      companyName: role === 'business' ? companyName : undefined,
+    });
+    setLoading(false);
+    if (ok) {
+      navigate('/dashboard');
+    } else {
+      setError('Email đã tồn tại. Vui lòng dùng email khác.');
+    }
+  };
 
   return (
-    <div className="page-wrapper auth-page">
+    <section className="auth-page">
       <div className="auth-container">
-        <div className="auth-card fade-up">
-          <Link to="/" className="auth-logo">
-            Uni<span>Task</span>
-            <div className="dot" />
-          </Link>
-          <h1 className="auth-title">Tạo tài khoản miễn phí</h1>
-          <p className="auth-sub">Bắt đầu hành trình của bạn với UniTask</p>
+        <div className="auth-card">
+          <div className="auth-header">
+            <h1>Tạo tài khoản</h1>
+            <p>Tham gia cộng đồng UniTask — hoàn toàn miễn phí</p>
+          </div>
 
+          {/* role toggle */}
           <div className="role-toggle">
             <button
+              type="button"
               className={`role-btn${role === 'student' ? ' active' : ''}`}
               onClick={() => setRole('student')}
             >
-              🎓 Sinh viên
+              👨‍🎓 Sinh viên
             </button>
             <button
+              type="button"
               className={`role-btn${role === 'business' ? ' active' : ''}`}
               onClick={() => setRole('business')}
             >
@@ -30,65 +71,82 @@ export default function RegisterPage() {
             </button>
           </div>
 
-          <div className="auth-social">
-            <button className="social-btn">
-              <span>G</span> Google
-            </button>
-            <button className="social-btn">
-              <span>f</span> Facebook
-            </button>
-          </div>
-
-          <div className="auth-divider">
-            <span>hoặc đăng ký bằng email</span>
-          </div>
-
-          <form className="auth-form" onSubmit={(e) => e.preventDefault()}>
-            <div className="form-row-2">
-              <div className="form-group">
-                <label>Họ</label>
-                <input type="text" placeholder="Nguyễn" />
-              </div>
-              <div className="form-group">
-                <label>Tên</label>
-                <input type="text" placeholder="Minh" />
-              </div>
+          <form onSubmit={handleSubmit} className="auth-form">
+            {error && <div className="auth-error">{error}</div>}
+            <div className="form-group">
+              <label>Họ và tên *</label>
+              <input
+                type="text"
+                placeholder={role === 'student' ? 'Nguyễn Văn A' : 'Trần Quản lý'}
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
             </div>
             <div className="form-group">
-              <label>Email</label>
-              <input type="email" placeholder={role === 'student' ? 'name@university.edu.vn' : 'name@company.com'} />
+              <label>Email *</label>
+              <input
+                type="email"
+                placeholder="you@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                autoComplete="email"
+              />
             </div>
+            <div className="form-group">
+              <label>Mật khẩu *</label>
+              <input
+                type="password"
+                placeholder="Tối thiểu 6 ký tự"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                autoComplete="new-password"
+              />
+            </div>
+
             {role === 'student' && (
-              <div className="form-group">
-                <label>Trường / Đại học</label>
-                <input type="text" placeholder="VD: Đại học Bách khoa TP.HCM" />
-              </div>
+              <>
+                <div className="form-group">
+                  <label>Trường đại học</label>
+                  <input
+                    type="text"
+                    placeholder="VD: Đại học Bách Khoa TP.HCM"
+                    value={university}
+                    onChange={(e) => setUniversity(e.target.value)}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Chuyên ngành</label>
+                  <input
+                    type="text"
+                    placeholder="VD: Công nghệ Thông tin"
+                    value={major}
+                    onChange={(e) => setMajor(e.target.value)}
+                  />
+                </div>
+              </>
             )}
+
             {role === 'business' && (
               <div className="form-group">
-                <label>Tên doanh nghiệp</label>
-                <input type="text" placeholder="VD: TechNova VN" />
+                <label>Tên công ty / tổ chức</label>
+                <input
+                  type="text"
+                  placeholder="VD: TechNova VN"
+                  value={companyName}
+                  onChange={(e) => setCompanyName(e.target.value)}
+                />
               </div>
             )}
-            <div className="form-group">
-              <label>Mật khẩu</label>
-              <input type="password" placeholder="Tối thiểu 8 ký tự" />
-            </div>
-            <label className="checkbox-label" style={{ marginBottom: 20 }}>
-              <input type="checkbox" /> Tôi đồng ý với{' '}
-              <Link to="/terms">Điều khoản sử dụng</Link> và{' '}
-              <Link to="/privacy">Chính sách bảo mật</Link>
-            </label>
-            <button type="submit" className="btn btn-accent" style={{ width: '100%', justifyContent: 'center' }}>
-              Đăng ký {role === 'student' ? 'Sinh viên' : 'Doanh nghiệp'}
+
+            <button type="submit" className="btn btn-primary auth-submit" disabled={loading}>
+              {loading ? 'Đang tạo tài khoản...' : 'Đăng ký miễn phí →'}
             </button>
           </form>
-
           <p className="auth-switch">
-            Đã có tài khoản? <Link to="/login">Đăng nhập →</Link>
+            Đã có tài khoản? <Link to="/login">Đăng nhập</Link>
           </p>
         </div>
       </div>
-    </div>
+    </section>
   );
 }

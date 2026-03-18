@@ -1,4 +1,5 @@
 import { useRef } from 'react';
+import { Link } from 'react-router-dom';
 import { useCounterObserver } from '../hooks/useScroll';
 
 export default function Hero() {
@@ -32,7 +33,7 @@ export default function Hero() {
             Tích lũy kinh nghiệm, xây CV thực tế — không cần kinh nghiệm trước đó.
           </p>
           <div className="hero-cta">
-            <a href="#jobs" className="btn btn-accent">🚀 Tìm việc ngay</a>
+            <Link to="/jobs" className="btn btn-accent">🚀 Tìm việc ngay</Link>
             <a href="#how" className="btn btn-ghost">Xem cách hoạt động →</a>
           </div>
           <div className="hero-stats" ref={statsRef}>

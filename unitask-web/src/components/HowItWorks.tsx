@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { studentSteps, businessSteps, type HowStep } from '../data/siteData';
+import { studentSteps, businessSteps } from '../data/mockData';
+import type { HowStep } from '../types';
 
 function StepCard({ step }: { step: HowStep }) {
   return (
