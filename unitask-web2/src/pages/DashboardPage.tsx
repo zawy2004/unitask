@@ -100,7 +100,9 @@ export default function DashboardPage() {
     });
   }, [user]);
 
-  useEffect(() => { loadData(); }, [loadData]);
+  useEffect(() => {
+    if (user) loadData();
+  }, [user, loadData]);
 
   // Toast auto-dismiss
   useEffect(() => {

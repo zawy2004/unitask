@@ -37,13 +37,15 @@ export default function JobDetailPage() {
 
     // Save to localStorage mock "database"
     const apps = JSON.parse(localStorage.getItem(STORAGE_KEYS.APPLICATIONS) || '[]');
+    const timestamp = Date.now();
+    const appliedDate = new Date().toISOString().slice(0, 10);
     apps.push({
-      id: `app-${Date.now()}`,
+      id: `app-${timestamp}`,
       jobId: job.id,
       userId: user.id,
       coverLetter,
       status: 'pending',
-      appliedAt: new Date().toISOString().slice(0, 10),
+      appliedAt: appliedDate,
     });
     localStorage.setItem(STORAGE_KEYS.APPLICATIONS, JSON.stringify(apps));
     setApplied(true);

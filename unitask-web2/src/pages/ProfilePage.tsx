@@ -17,15 +17,16 @@ export default function ProfilePage() {
     skills: '',
   });
   const [saved, setSaved] = useState(false);
+  const [initialized, setInitialized] = useState(false);
 
   // Redirect if not logged in
   useEffect(() => {
     if (!user) navigate('/login');
   }, [user, navigate]);
 
-  // Sync form when user loads
+  // Sync form when user loads (only once per user)
   useEffect(() => {
-    if (user) {
+    if (user && !initialized) {
       setForm({
         name: user.name,
         email: user.email,
@@ -36,8 +37,9 @@ export default function ProfilePage() {
         phone: user.phone || '',
         skills: (user.skills || []).join(', '),
       });
+      setInitialized(true);
     }
-  }, [user]);
+  }, [user, initialized]);
 
   const set = (key: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
     setForm((p) => ({ ...p, [key]: e.target.value }));

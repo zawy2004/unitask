@@ -97,8 +97,9 @@ function ApplicationCard({ app, onWithdraw, onRate, expanding, onToggleExpand }:
   if (!job) return null;
 
   const st = STATUS_MAP[app.status];
+  const currentTime = Date.now();
   const daysSinceApplied = Math.max(0, Math.floor(
-    (Date.now() - new Date(app.appliedAt).getTime()) / 86_400_000
+    (currentTime - new Date(app.appliedAt).getTime()) / 86_400_000
   ));
 
   return (
