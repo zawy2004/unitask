@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { jobsData, applicationsData } from '../data/mockData';
@@ -80,8 +80,7 @@ export default function DashboardPage() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
-  const [isLoading, setIsLoading] = useState(true);
-  const [apps, setApps] = useState<AppRecord[]>([]);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [period, setPeriod] = useState<Period>('all');
   const [toast, setToast] = useState<string | null>(null);
 
@@ -90,19 +89,7 @@ export default function DashboardPage() {
     if (!user) navigate('/login');
   }, [user, navigate]);
 
-  // Load data
-  const loadData = useCallback(() => {
-    if (!user) return;
-    setIsLoading(true);
-    simulateDelay(450).then(() => {
-      setApps(getApplications(user.id));
-      setIsLoading(false);
-    });
-  }, [user]);
-
-  useEffect(() => {
-    if (user) loadData();
-  }, [user, loadData]);
+  const apps = user ? getApplications(user.id) : [];
 
   // Toast auto-dismiss
   useEffect(() => {
@@ -112,23 +99,24 @@ export default function DashboardPage() {
   }, [toast]);
 
   // Filtered apps by period
-  const filteredApps = useMemo(() => {
-    if (period === 'all') return apps;
-    const days = period === '7d' ? 7 : 30;
-    return apps.filter((a) => daysAgo(a.appliedAt) <= days);
-  }, [apps, period]);
+  const filteredApps = period === 'all'
+    ? apps
+    : apps.filter((a) => daysAgo(a.appliedAt) <= (period === '7d' ? 7 : 30));
 
-  const stats = useMemo(() => ({
-    total:     filteredApps.length,
-    accepted:  filteredApps.filter((a) => a.status === 'accepted').length,
+  const stats = {
+    total: filteredApps.length,
+    accepted: filteredApps.filter((a) => a.status === 'accepted').length,
     completed: filteredApps.filter((a) => a.status === 'completed').length,
-    pending:   filteredApps.filter((a) => a.status === 'pending').length,
-  }), [filteredApps]);
+    pending: filteredApps.filter((a) => a.status === 'pending').length,
+  };
 
   const handleRefresh = useCallback(() => {
-    loadData();
-    setToast('Đã cập nhật dữ liệu ✓');
-  }, [loadData]);
+    setIsRefreshing(true);
+    simulateDelay(450).then(() => {
+      setIsRefreshing(false);
+      setToast('Đã cập nhật dữ liệu ✓');
+    });
+  }, []);
 
   if (!user) return null;
 
@@ -192,7 +180,7 @@ export default function DashboardPage() {
           </aside>
 
           {/* main content */}
-          {isLoading ? (
+          {isRefreshing ? (
             <DashSkeleton />
           ) : (
             <div className="dash-main">
